@@ -36,14 +36,14 @@ func (h *InventoryHandler) GetInventory(w http.ResponseWriter, r *http.Request) 
 		log.Printf("Error retrieving inventory: %v\n", error)
 		http.Error(w, fmt.Sprintf("Error retrieving inventory: %v", error), http.StatusInternalServerError)
 		response := entity.Response{
-			StatusCode: r.Response.StatusCode,
+			StatusCode: http.StatusBadRequest,
 			Message:    "Error Getting Inventory",
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(response)
 	}
 	response := entity.Response{
-		StatusCode: r.Response.StatusCode,
+		StatusCode: http.StatusOK,
 		Message:    "Users fetched successfully",
 		Data:       inventory,
 	}
@@ -51,12 +51,11 @@ func (h *InventoryHandler) GetInventory(w http.ResponseWriter, r *http.Request) 
 	err := json.NewEncoder(w).Encode(response)
 	if err != nil {
 		response := entity.Response{
-			StatusCode: r.Response.StatusCode,
+			StatusCode: http.StatusBadRequest,
 			Message:    "Error Getting Inventory",
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(response)
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, inventory)
 }
