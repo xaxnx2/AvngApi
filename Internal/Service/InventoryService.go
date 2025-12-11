@@ -22,3 +22,7 @@ func NewInventoryService() *InventoryService {
 func (s *InventoryService) GetInventory() ([]Entity.Inventory, error) {
 	return s.invRepo.GetAllInventory()
 }
+
+func (s *InventoryService) GetInventoryByID(id int) (*Entity.Inventory, error) {
+	return s.invRepo.GetInventoryByID(id)
+}

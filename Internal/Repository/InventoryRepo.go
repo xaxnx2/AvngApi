@@ -6,22 +6,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// type InventoryStatus string
-
-// const (
-// 	StatusActive InventoryStatus = "Active"
-// 	StatusBroken InventoryStatus = "Broken"
-// )
-
-// type Inventory struct {
-// 	ID          int
-// 	Name        string
-// 	Itemcode    string
-// 	Stock       string
-// 	Description string
-// 	Status      InventoryStatus
-// }
-
 type InventoryRepository struct {
 	*BaseRepository
 }
@@ -30,6 +14,26 @@ func NewInventoryRepository() *InventoryRepository {
 	return &InventoryRepository{
 		BaseRepository: NewBaseRepository(),
 	}
+}
+
+func (r *InventoryRepository) CreateInventory(name string, itemcode string, stock int, description string, status string) (*Entity.Inventory, error) {
+	query := `
+	INSERT INTO avnginventory (
+		name,
+		itemcode,
+		stock,
+		description,
+		status
+	)
+	VALUES ($1,$2,$3,$4,$5)
+	`
+	var inv Entity.Inventory
+	_, err := r.db.Exec(query, name, itemcode, stock, description, status)
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv, nil
 }
 
 func (r *InventoryRepository) GetAllInventory() ([]Entity.Inventory, error) {
@@ -59,4 +63,59 @@ func (r *InventoryRepository) GetAllInventory() ([]Entity.Inventory, error) {
 	}
 
 	return inventory, nil
+}
+
+func (r *InventoryRepository) GetInventoryByID(ID int) (*Entity.Inventory, error) {
+	query := `
+	select * FROM 
+	avnginventory
+	WHERE id = $1
+	`
+	var inv Entity.Inventory
+	err := r.db.QueryRow(query, ID).Scan(
+		&inv.ID,
+		&inv.Name,
+		&inv.Itemcode,
+		&inv.Stock,
+		&inv.Description,
+		&inv.Status,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv, nil
+}
+
+func (r *InventoryRepository) UpdateInventory(id int, name string, itemcode string, stock int, description string, status string) (*Entity.Inventory, error) {
+	query := `
+	UPDATE avnginventory
+	SET 
+	name = $1,
+	itemcode = $2,
+	stock = $3,
+	description = $4,
+	status $5
+	WHERE id = $6
+	`
+	var inv Entity.Inventory
+	_, err := r.db.Exec(query, name, itemcode, stock, description, status, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &inv, nil
+}
+
+func (r *InventoryRepository) DeleteInventory(id int) error {
+	query := `
+	DELETE FROM avnginventory
+	WHERE id = $1
+	`
+	_, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
